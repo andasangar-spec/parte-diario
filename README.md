@@ -1,0 +1,2 @@
+# parte-diario
+PARTE DIARIO DE TRABAJO
