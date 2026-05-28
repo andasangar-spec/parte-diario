@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Unit Exam - 5th Grade</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: #fff;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            background: #ecf0f1;
+            padding: 8px 15px;
+            border-left: 5px solid #2980b9;
+            border-radius: 0 4px 4px 0;
+        }
+        h3 {
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+        .exercise {
+            margin-bottom: 25px;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #eef2f3;
+        }
+        .word-bank {
+            background: #e8f4f8;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50;
+            letter-spacing: 0.5px;
+        }
+        .question-row {
+            margin-bottom: 12px;
+        }
+        input[type="text"] {
+            padding: 6px 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 180px;
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,0.3);
+        }
+        input[type="text"].long-input {
+            width: 350px;
+        }
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            color: #155724 !important;
+        }
+        .incorrect {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+            color: #721c24 !important;
+        }
+        .btn-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result-summary {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 Space Mission Exam - 5th Grade 👩‍🚀</h1>
+    
+    <!-- BLOQUE 1: VOCABULARIO -->
+    <h2>1. Space & Science Vocabulary</h2>
+    
+    <div class="exercise">
+        <h3>Exercise A: Space Routines and Objects</h3>
+        <p><em>Fill in the blanks using the words from the bank.</em></p>
+        <div class="word-bank">rocket | stars | float | spacesuit | exercise</div>
+        
+        <div class="question-row">
+            1. Astronauts need to wear a heavy <input type="text" id="v1" data-answer="spacesuit"> when they go outside the space station.
+        </div>
+        <div class="question-row">
+            2. Look at the night sky! You can see millions of bright <input type="text" id="v2" data-answer="stars">.
+        </div>
+        <div class="question-row">
+            3. Because there is no gravity, objects <input type="text" id="v3" data-answer="float"> in the air.
+        </div>
+        <div class="question-row">
+            4. To keep their muscles strong, astronauts must <input type="text" id="v4" data-answer="exercise"> every single day.
+        </div>
+        <div class="question-row">
+            5. The crew traveled to the moon inside a powerful <input type="text" id="v5" data-answer="rocket">.
+        </div>
+    </div>
+
+    <div class="exercise">
+        <h3>Exercise B: The Human Body in Space</h3>
+        <p><em>Complete the sentences about zero gravity effects using the words from the bank.</em></p>
+        <!-- SE HA AÑADIDO EL BANCO DE PALABRAS AQUÍ -->
+        <div class="word-bank">calcium | muscles | blood</div>
+        
+        <div class="question-row">
+            1. Without gravity, bones lose <input type="text" id="v6" data-answer="calcium"> and become very weak.
+        </div>
+        <div class="question-row">
+            2. Astronauts' <input type="text" id="v7" data-answer="muscles"> don't work hard to support weight, so they get smaller.
+        </div>
+        <div class="question-row">
+            3. Inside the spaceship, <input type="text" id="v8" data-answer="blood"> moves more toward the head, causing puffy faces.
+        </div>
+    </div>
+
+    <!-- BLOQUE 2: GRAMÁTICA -->
+    <h2>2. Grammar Structures</h2>
+    
+    <div class="exercise">
+        <h3>Exercise C: Past Simple (Irregular Verbs & Negatives)</h3>
+        <p><em>Complete the narrative with the Past Simple form of the verbs in brackets.</em></p>
+        <div class="question-row">
+            Yesterday, Commander Tom <input type="text" id="g1" data-answer="saw"> (see) a strange comet. 
+            He <input type="text" id="g2" data-answer="took"> (take) a photo and <input type="text" id="g3" data-answer="made"> (make) a video report. 
+            However, he <input type="text" id="g4" data-answer="didn't send"> (not / send) the file to Earth because the radio was broken. 
+            The team <input type="text" id="g5" data-answer="didn't sleep"> (not / sleep) well last night due to the excitement.
+        </div>
+    </div>
+
+    <div class="exercise">
+        <h3>Exercise D: Obligations (Have to / Has to)</h3>
+        <p><em>Complete using: <strong>have to, has to, don't have to,</strong> or <strong>doesn't have to</strong>.</em></p>
+        <div class="question-row">
+            1. A professional astronaut <input type="text" id="g6" data-answer="has to"> train for many years before a real mission. (Obligation)
+        </div>
+        <div class="question-row">
+            2. You <input type="text" id="g7" data-answer="don't have to"> wash the dishes today; the automatic machine does it. (No obligation)
+        </div>
+        <div class="question-row">
+            3. Inside the International Space Station, she <input type="text" id="g8" data-answer="doesn't have to"> wear a helmet. (No obligation)
+        </div>
+        <div class="question-row">
+            4. We <input type="text" id="g9" data-answer="have to"> check the oxygen levels every morning. (Obligation)
+        </div>
+    </div>
+
+    <div class="exercise">
+        <h3>Exercise E: Question Order (Have to)</h3>
+        <p><em>Put the words in the correct order to form questions. (Start with a capital letter and end with '?')</em></p>
+        <div class="question-row">
+            1. (study / you / do / science / have / to) <br>
+            <input type="text" id="g10" class="long-input" data-answer="Do you have to study science?">
+        </div>
+        <div class="question-row">
+            2. (cook / does / he / dinner / have / to) <br>
+            <input type="text" id="g11" class="long-input" data-answer="Does he have to cook dinner?">
+        </div>
+    </div>
+
+    <!-- BLOQUE 3: FUNCIONES COMUNICATIVAS -->
+    <h2>3. Communication Skills (Space Chit-Chat)</h2>
+    
+    <div class="exercise">
+        <h3>Exercise F: Suggestions, Offers, and Requests</h3>
+        <p><em>Complete the dialogue using the options from the box.</em></p>
+        <div class="word-bank">How about | Would you like | Can I try</div>
+        <div class="question-row">
+            <strong>A:</strong> I am very bored in this spaceship. <input type="text" id="c1" data-answer="How about"> playing a video game?
+        </div>
+        <div class="question-row">
+            <strong>B:</strong> That's a great idea! But first, I am a bit hungry. <input type="text" id="c2" data-answer="Would you like"> some space strawberries?
+        </div>
+        <div class="question-row">
+            <strong>A:</strong> Oh, yes please! They look delicious. <input type="text" id="c3" data-answer="Can I try"> one, please?
+        </div>
+    </div>
+
+    <!-- BOTÓN DE CORRECCIÓN -->
+    <div class="btn-container">
+        <button onclick="checkExam()">Corregir Examen</button>
+    </div>
+
+    <div id="result-summary"></div>
+</div>
+
+<script>
+    function checkExam() {
+        const inputs = document.querySelectorAll('input[type="text"]');
+        let totalQuestions = inputs.length;
+        let correctAnswers = 0;
+
+        inputs.forEach(input => {
+            let userAnswer = input.value.trim().toLowerCase();
+            let correctAnswer = input.getAttribute('data-answer').trim().toLowerCase();
+
+            if (userAnswer === correctAnswer) {
+                input.className = input.className.replace(/(?:^|\s)incorrect(?!\S)/g, '');
+                if (!input.classList.contains('correct')) {
+                    input.classList.add('correct');
+                }
+                correctAnswers++;
+            } else {
+                input.className = input.className.replace(/(?:^|\s)correct(?!\S)/g, '');
+                if (!input.classList.contains('incorrect')) {
+                    input.classList.add('incorrect');
+                }
+            }
+        });
+
+        const resultDiv = document.getElementById('result-summary');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `Resultado: ${correctAnswers} de ${totalQuestions} correctas. (${Math.round((correctAnswers/totalQuestions)*100)}%)`;
+        
+        if(correctAnswers === totalQuestions) {
+            resultDiv.style.color = '#28a745';
+        } else if (correctAnswers >= totalQuestions * 0.5) {
+            resultDiv.style.color = '#3498db';
+        } else {
+            resultDiv.style.color = '#dc3545';
+        }
+        
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+                                                                 </html>
+      
