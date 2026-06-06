@@ -3,168 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parte de Trabajo A5 Profesional</title>
+    <title>Parte de Trabajo Diario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --blue: #1a73e8; --gray: #5f6368; --light: #f8f9fa; }
-        body { font-family: Arial, sans-serif; background: #eee; margin: 0; padding: 0; }
-        
-        #parte-completo { 
-            width: 148mm; 
-            min-height: 210mm; 
-            margin: auto; 
-            background: white; 
-            padding: 8mm; 
-            box-sizing: border-box;
+        input, select, button {
+            min-height: 48px;
         }
-
-        h2 { text-align: center; color: var(--blue); margin: 0 0 8px 0; font-size: 16px; border-bottom: 2px solid var(--blue); padding-bottom: 5px; }
-        
-        .header-section { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-        label { display: block; font-size: 9px; font-weight: bold; color: var(--gray); margin-bottom: 2px; }
-        input, select, textarea { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 10px; box-sizing: border-box; }
-
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: var(--light); font-size: 10px; padding: 5px; border: 1px solid #ccc; }
-        td { border: 1px solid #ccc; padding: 1px; text-align: center; height: 22px; }
-        .total-row { background: #e8f0fe; font-weight: bold; font-size: 10px; }
-
-        .obs-section { margin-top: 8px; }
-        .obs-section textarea { width: 100%; height: 40px; resize: none; font-family: inherit; }
-
-        .km-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; background: var(--light); padding: 6px; border-radius: 4px; }
-        
-        .no-print { max-width: 148mm; margin: 15px auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 5px; }
-        button { padding: 10px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .btn-pdf { background: #d93025; grid-column: span 3; }
-        .btn-wa { background: #188038; } .btn-email { background: #1a73e8; } .btn-clear { background: #5f6368; }
-
-        @media print { .no-print { display: none; } }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased pb-12">
 
-<div id="parte-completo">
-    <h2>PARTE DE TRABAJO DIARIO</h2>
+    <div class="max-w-4xl mx-auto px-4 pt-6" id="contenido-completo">
+        <header class="bg-white rounded-2xl shadow-sm p-6 mb-6 border border-slate-100">
+            <h1 class="text-2xl font-bold text-indigo-900 text-center uppercase tracking-wider mb-6">
+                Parte de Trabajo Diario
+            </h1>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Fecha</label>
+                    <input type="date" id="fecha" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Profesor / Instructor</label>
+                    <input type="text" id="profesor" placeholder="Nombre del profesor" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Matrícula Vehículo</label>
+                    <input type="text" id="matricula" placeholder="1234-ABC" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">KM Inicial</label>
+                    <input type="number" id="kmInicial" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">KM Final</label>
+                    <input type="number" id="kmFinal" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-indigo-600 uppercase mb-1">Total KM Recorridos</label>
+                    <div id="kmTotales" class="w-full bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold rounded-lg px-3 py-2 flex items-center">
+                        0 km
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <div class="header-section">
-        <div><label>PROFESOR</label><input type="text" id="prof"></div>
-        <div><label>FECHA</label><input type="date" id="fecha"></div>
-        <div><label>MATRÍCULA</label><input type="text" id="mat"></div>
+        <main class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+            <div class="p-6 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="font-bold text-slate-700 uppercase tracking-wide text-sm">Registros de Clases</h2>
+                <button onclick="agregarFila()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                    ➕ Añadir Clase
+                </button>
+            </div>
+
+            <div class="hidden md:grid grid-cols-12 bg-slate-100/70 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider p-4">
+                <div class="col-span-2">Hora</div>
+                <div class="col-span-5">Alumno</div>
+                <div class="col-span-2">Permiso</div>
+                <div class="col-span-2 text-center">Nº Clases</div>
+                <div class="col-span-1 text-center">Acción</div>
+            </div>
+
+            <div id="tabla-cuerpo" class="p-4 md:p-0 bg-slate-50 md:bg-white space-y-4 md:space-y-0 divide-y-0 md:divide-y md:divide-slate-100">
+                </div>
+
+            <div class="p-4 bg-slate-900 text-white flex justify-between items-center font-bold text-lg">
+                <span class="text-slate-400 text-sm uppercase tracking-wider">Total Clases de la Jornada:</span>
+                <span id="total-clases" class="text-emerald-400 text-2xl">0</span>
+            </div>
+        </main>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button onclick="compartirParte()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                📲 Compartir por WhatsApp
+            </button>
+            <button onclick="exportarPDF()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                📄 Descargar PDF
+            </button>
+            <button onclick="limpiarJornada()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold rounded-xl border border-rose-200 transition-all flex items-center justify-center gap-2">
+                🗑️ Limpiar Jornada
+            </button>
+        </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 22%;">HORA</th>
-                <th style="width: 60%;">ALUMNO</th>
-                <th style="width: 18%;">CLASES</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-filas"></tbody>
-        <tfoot>
-            <tr class="total-row">
-                <td colspan="2" style="text-align: right; padding-right: 10px;">TOTAL CLASES:</td>
-                <td id="suma-total">0</td>
-            </tr>
-        </tfoot>
-    </table>
+    <script>
+        let estadoJornada = {
+            cabecera: { fecha: '', profesor: '', matricula: '', kmInicial: 0, kmFinal: 0 },
+            clases: []
+        };
 
-    <div class="obs-section">
-        <label>OBSERVACIONES</label>
-        <textarea id="obs" placeholder="Escribe aquí notas o incidencias..."></textarea>
-    </div>
+        const opcionesPermisos = ['AM', 'A1', 'A2', 'A', 'B', 'BE', 'C', 'CE', 'D'];
 
-    <div class="km-section">
-        <div><label>KM INICIO</label><input type="number" id="kmi" oninput="calcKm()"></div>
-        <div><label>KM FINAL</label><input type="number" id="kmf" oninput="calcKm()"></div>
-        <div><label>TOTAL KM</label><input type="text" id="kmt" readonly style="background:#e8f0fe; text-align:center; font-weight:bold;"></div>
-    </div>
-</div>
+        window.addEventListener('DOMContentLoaded', () => {
+            const datosGuardados = localStorage.getItem('parteDiarioData');
+            if (datosGuardados) {
+                estadoJornada = JSON.parse(datosGuardados);
+                mapearDatosACabeceraInputs();
+            } else {
+                document.getElementById('fecha').valueToDate = new Date();
+                estadoJornada.cabecera.fecha = new Date().toISOString().split('T')[0];
+            }
+            
+            configurarEscuchadoresCabecera();
+            renderizarTabla();
+            calcularTotales();
+        });
 
-<div class="no-print">
-    <button class="btn-pdf" onclick="generarPDF()">GENERAR PDF (A5)</button>
-    <button class="btn-wa" onclick="enviarWA()">WHATSAPP</button>
-    <button class="btn-email" onclick="enviarEmail()">EMAIL</button>
-    <button class="btn-clear" onclick="limpiarForm()">LIMPIAR</button>
-</div>
+        function configurarEscuchadoresCabecera() {
+            const campos = ['fecha', 'profesor', 'matricula', 'kmInicial', 'kmFinal'];
+            campos.forEach(campo => {
+                document.getElementById(campo).addEventListener('input', (e) => {
+                    estadoJornada.cabecera[campo] = e.target.value;
+                    calcularTotales();
+                    guardarEnStorage();
+                });
+            });
+        }
 
-<script>
-    function genHoras() {
-        let opt = '<option value="" selected>-</option>';
-        // Rango de 6:00 a 22:00[span_2](start_span)[span_2](end_span)
-        for(let hh=6; hh<=22; hh++) {
-            for(let mm=0; mm<60; mm+=15) {
-                let s = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}`;
-                opt += `<option value="${s}">${s}</option>`;
+        function mapearDatosACabeceraInputs() {
+            Object.keys(estadoJornada.cabecera).forEach(key => {
+                const input = document.getElementById(key);
+                if (input) input.value = estadoJornada.cabecera[key];
+            });
+        }
+
+        // RENDERIZADO FLEXIBLE UI/UX (MÓVIL-FIRST)
+        function renderizarTabla() {
+            const cuerpo = document.getElementById('tabla-cuerpo');
+            cuerpo.innerHTML = '';
+
+            estadoJornada.clases.forEach((clase, index) => {
+                const elementoFila = document.createElement('div');
+                
+                // Clases CSS mágicas: En móvil crea una tarjeta separada, en PC se alinea en rejilla perfecta
+                elementoFila.className = "bg-white md:bg-transparent rounded-xl md:rounded-none p-4 md:p-4 shadow-sm md:shadow-none border border-slate-100 md:border-none md:grid md:grid-cols-12 md:gap-4 items-center hover:bg-slate-50/80 transition-all flex flex-col gap-3 md:flex-row";
+
+                let opcionesHTML = `<option value="">--</option>`;
+                opcionesPermisos.forEach(permiso => {
+                    opcionesHTML += `<option value="${permiso}" ${clase.permiso === permiso ? 'selected' : ''}>${permiso}</option>`;
+                });
+
+                elementoFila.innerHTML = `
+                    <div class="w-full md:col-span-2 flex justify-between items-center md:block">
+                        <span class="text-xs font-bold text-slate-400 uppercase md:hidden">Hora</span>
+                        <input type="time" value="${clase.hora || ''}" oninput="actualizarFila(${index}, 'hora', this.value)" class="bg-slate-50 md:bg-transparent border border-slate-200 md:border-b md:border-transparent focus:border-indigo-500 focus:outline-none rounded-lg md:rounded-none px-2 py-1 text-sm md:text-base w-32 md:w-full text-center md:text-left">
+                    </div>
+
+                    <div class="w-full md:col-span-5 flex flex-col md:block">
+                        <span class="text-xs font-bold text-slate-400 uppercase md:hidden mb-1">Alumno</span>
+                        <input type="text" placeholder="Nombre completo del alumno" value="${clase.alumno || ''}" oninput="actualizarFila(${index}, 'alumno', this.value)" class="w-full bg-slate-50 md:bg-transparent border border-slate-200 md:border-b md:border-transparent focus:border-indigo-500 focus:outline-none rounded-lg md:rounded-none px-3 py-2 md:px-0 md:py-1 text-base font-medium text-slate-700">
+                    </div>
+
+                    <div class="w-full md:col-span-2 flex justify-between items-center md:block">
+                        <span class="text-xs font-bold text-slate-400 uppercase md:hidden">Permiso</span>
+                        <select onchange="actualizarFila(${index}, 'permiso', this.value)" class="w-32 md:w-full bg-slate-50 border border-slate-200 rounded-lg md:rounded p-2 md:p-1 text-sm focus:outline-none focus:border-indigo-500 font-semibold text-center md:text-left">
+                            ${opcionesHTML}
+                        </select>
+                    </div>
+
+                    <div class="w-full md:col-span-2 flex justify-between items-center md:block">
+                        <span class="text-xs font-bold text-slate-400 uppercase md:hidden">Nº Clases</span>
+                        <input type="number" min="0" placeholder="0" value="${clase.numClases || ''}" oninput="actualizarFila(${index}, 'numClases', this.value)" class="w-20 md:w-full bg-slate-50 md:bg-transparent border border-slate-200 md:border-b md:border-transparent focus:border-indigo-500 focus:outline-none rounded-lg md:rounded-none px-2 py-1 font-bold text-center text-lg md:text-base text-indigo-600">
+                    </div>
+
+                    <div class="w-full md:col-span-1 text-right md:text-center mt-2 md:mt-0 pt-2 md:pt-0 border-t border-slate-100 md:border-none">
+                        <button onclick="eliminarFila(${index})" class="text-rose-500 hover:text-rose-700 font-semibold text-sm md:text-lg flex items-center justify-center gap-1 w-full md:w-auto bg-rose-50 md:bg-transparent py-2 md:py-0 rounded-lg md:rounded-none transition-colors">
+                            <span class="md:hidden text-xs uppercase font-bold text-rose-600">Eliminar Fila</span> ✕
+                        </button>
+                    </div>
+                `;
+                cuerpo.appendChild(elementoFila);
+            });
+        }
+
+        function agregarFila() {
+            estadoJornada.clases.push({ hora: '', alumno: '', permiso: '', numClases: 1 });
+            renderizarTabla();
+            calcularTotales();
+            guardarEnStorage();
+        }
+
+        function actualizarFila(index, campo, valor) {
+            estadoJornada.clases[index][campo] = valor;
+            if (campo === 'numClases') calcularTotales();
+            guardarEnStorage();
+        }
+
+        function eliminarFila(index) {
+            estadoJornada.clases.splice(index, 1);
+            renderizarTabla();
+            calcularTotales();
+            guardarEnStorage();
+        }
+
+        function calcularTotales() {
+            const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
+            const kf = parseFloat(estadoJornada.cabecera.kmFinal) || 0;
+            const diff = kf - ki;
+            document.getElementById('kmTotales').innerText = diff >= 0 ? `${diff} km` : 'Error en KM';
+
+            const totalClases = estadoJornada.clases.reduce((sum, item) => sum + (parseInt(item.numClases) || 0), 0);
+            document.getElementById('total-clases').innerText = totalClases;
+        }
+
+        function guardarEnStorage() {
+            localStorage.setItem('parteDiarioData', JSON.stringify(estadoJornada));
+        }
+
+        function limpiarJornada() {
+            if (confirm('¿Estás seguro de que deseas vaciar todos los campos del parte diario?')) {
+                localStorage.removeItem('parteDiarioData');
+                estadoJornada = {
+                    cabecera: { fecha: new Date().toISOString().split('T')[0], profesor: '', matricula: '', kmInicial: 0, kmFinal: 0 },
+                    clases: []
+                };
+                mapearDatosACabeceraInputs();
+                renderizarTabla();
+                calcularTotales();
             }
         }
-        return opt;
-    }
 
-    function init() {
-        const tabla = document.getElementById('tabla-filas');
-        let html = '';
-        for(let i=1; i<=15; i++) {
-            html += `<tr>
-                <td><select style="border:none;">${genHoras()}</select></td>
-                <td><input type="text" style="border:none; width:95%;"></td>
-                <td><select class="clase-select" onchange="sumarClases()" style="border:none;">
-                    <option value="0" selected>-</option>
-                    ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join('')}
-                </select></td>
-            </tr>`;
-        }
-        tabla.innerHTML = html;
-        document.getElementById('fecha').valueAsDate = new Date();
-    }
+        function exportarPDF() {
+            const elemento = document.getElementById('contenido-completo');
+            const botones = document.querySelectorAll('button');
+            botones.forEach(b => b.style.display = 'none');
 
-    function sumarClases() {
-        let total = 0;
-        document.querySelectorAll('.clase-select').forEach(sel => {
-            total += parseInt(sel.value) || 0;
-        });
-        document.getElementById('suma-total').innerText = total;
-    }
+            const opcionesConfig = {
+                margin:       10,
+                filename:     `Parte_Diario_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-    function calcKm() {
-        const i = parseFloat(document.getElementById('kmi').value) || 0;
-        const f = parseFloat(document.getElementById('kmf').value) || 0;
-        document.getElementById('kmt').value = (f - i) > 0 ? (f - i) : 0;
-    }
-
-    function generarPDF() {
-        const element = document.getElementById('parte-completo');
-        const nombreProf = document.getElementById('prof').value.trim() || "profesor";
-        const fechaInput = document.getElementById('fecha').value; 
-        let fechaFormateada = "SinFecha";
-
-        if (fechaInput) {
-            const d = new Date(fechaInput);
-            const dia = String(d.getDate()).padStart(2, '0');
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const año = String(d.getFullYear()).slice(-2);
-            fechaFormateada = `${dia}${mes}${año}`;
+            html2pdf().from(elemento).set(opcionesConfig).save().then(() => {
+                botones.forEach(b => b.style.display = '');
+            });
         }
 
-        const nombreArchivo = `${nombreProf.replace(/\s+/g, '_')}_${fechaFormateada}.pdf`;
+        function compartirParte() {
+            const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
+            const kf = parseFloat(estadoJornada.cabecera.kmFinal) || 0;
+            const totalClases = document.getElementById('total-clases').innerText;
+            
+            let textoResumen = `*RESUMEN PARTE DIARIO*\n`;
+            textoResumen += `📅 Fecha: ${estadoJornada.cabecera.fecha || '-'}\n`;
+            textoResumen += `👨‍🏫 Profesor: ${estadoJornada.cabecera.profesor || '-'}\n`;
+            textoResumen += `🚗 Matrícula: ${estadoJornada.cabecera.matricula || '-'}\n`;
+            textoResumen += `🛣️ KM Recorridos: ${kf - ki} km\n`;
+            textoResumen += `📚 Total Clases: ${totalClases}\n\n`;
+            textoResumen += `*DETALLE DE CLASES:*\n`;
 
-        const opt = {
-            margin: 0,
-            filename: nombreArchivo,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 3 },
-            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
+            estadoJornada.clases.forEach(c => {
+                if(c.alumno) {
+                    textoResumen += `• ${c.hora || '00:00'} | ${c.alumno} | Permiso: ${c.permiso || 'N/A'} | Clases: ${c.numClases}\n`;
+                }
+            });
 
-    function enviarWA() { window.open(`https://wa.me/?text=Envío mi parte de trabajo diario.`, '_blank'); }
-    function enviarEmail() { window.location.href = `mailto:?subject=Parte de Trabajo&body=Adjunto envío mi parte.`; }
-    function limpiarForm() { if(confirm("¿Borrar todos los datos?")) location.reload(); }
-
-    init();
-</script>
-
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Parte de Trabajo Diario',
+                    text: textoResumen
+                }).catch(console.error);
+            } else {
+                const urlWhatsapp = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoResumen)}`;
+                window.open(urlWhatsapp, '_blank');
+            }
+        }
+    </script>
 </body>
 </html>
