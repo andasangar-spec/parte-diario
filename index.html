@@ -103,7 +103,8 @@
                 estadoJornada = JSON.parse(datosGuardados);
                 mapearDatosACabeceraInputs();
             } else {
-                document.getElementById('fecha').valueToDate = new Date();
+                // Corrección del método DOM estándar
+                document.getElementById('fecha').valueAsDate = new Date();
                 estadoJornada.cabecera.fecha = new Date().toISOString().split('T')[0];
             }
             
@@ -221,13 +222,12 @@
 
         // MOTOR DE IMPRESIÓN EXCLUSIVO PARA DOSSIER EN HOJA ÚNICA A5
         function exportarPDF() {
-            // 1. Crear un contenedor temporal oculto en la pantalla pero visible para el compilador de gráficos
             const layoutImpresion = document.createElement('div');
             layoutImpresion.style.position = 'fixed';
             layoutImpresion.style.top = '0';
             layoutImpresion.style.left = '0';
-            layoutImpresion.style.width = '540px'; // Ancho matemático perfecto calibrado para A5
-            layoutImpresion.style.zIndex = '-100'; // Se ubica detrás de la app real para que no parpadee
+            layoutImpresion.style.width = '540px'; 
+            layoutImpresion.style.zIndex = '-100'; 
             layoutImpresion.style.backgroundColor = '#ffffff';
             layoutImpresion.style.padding = '14px';
             layoutImpresion.style.fontFamily = 'system-ui, -apple-system, sans-serif';
@@ -237,7 +237,6 @@
             const kmTotales = kf - ki >= 0 ? `${kf - ki} km` : '0 km';
             const totalClases = document.getElementById('total-clases').innerText;
 
-            // 2. Mapear dinámicamente las clases del profesor a filas de tabla ultra-compactas (una sola línea por alumno)
             let filasTablaHtml = '';
             estadoJornada.clases.forEach(clase => {
                 filasTablaHtml += `
@@ -250,7 +249,6 @@
                 `;
             });
 
-            // 3. Inyectar la plantilla limpia con diseño formal de alta densidad
             layoutImpresion.innerHTML = `
                 <div style="text-align: center; margin-bottom: 12px; border-bottom: 2px solid #4f46e5; padding-bottom: 6px;">
                     <h1 style="font-size: 16px; font-weight: 800; color: #1e1b4b; text-transform: uppercase; margin: 0; letter-spacing: 0.5px;">Parte de Trabajo Diario</h1>
@@ -291,13 +289,12 @@
 
             document.body.appendChild(layoutImpresion);
 
-            // 4. Parámetros de conversión matemática estricta a un único plano A5
             const configuracionPdf = {
-                margin:       5, // Margen milimétrico mínimo para expandir área útil
+                margin:       5, 
                 filename:     `Parte_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
-                    scale: 2.5, // Mayor nitidez de texto
+                    scale: 2.5, 
                     useCORS: true, 
                     scrollY: 0, 
                     scrollX: 0,
@@ -306,7 +303,6 @@
                 jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
             };
 
-            // 5. Compilar documento y limpiar rastro en memoria
             html2pdf().from(layoutImpresion).set(configuracionPdf).save().then(() => {
                 document.body.removeChild(layoutImpresion);
             }).catch(err => {
@@ -315,10 +311,30 @@
             });
         }
 
+        // CORRECCIÓN Y CIERRE DE LA FUNCIÓN COMPARTIR
         function compartirParte() {
             const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
             const kf = parseFloat(estadoJornada.cabecera.kmFinal) || 0;
+            const diff = kf - ki;
+            const kmTotales = diff >= 0 ? `${diff} km` : '0 km';
             const totalClases = document.getElementById('total-clases').innerText;
             
             let textoResumen = `*RESUMEN PARTE DIARIO*\n`;
-            textoResumen += `📅 Fecha: ${
+            textoResumen += `📅 *Fecha:* ${estadoJornada.cabecera.fecha || '-'}\n`;
+            textoResumen += `👨‍🏫 *Profesor:* ${estadoJornada.cabecera.profesor || '-'}\n`;
+            textoResumen += `🚗 *Matrícula:* ${estadoJornada.cabecera.matricula || '-'}\n`;
+            textoResumen += `📍 *KM Inicial:* ${ki} | *KM Final:* ${kf}\n`;
+            textoResumen += `📊 *Total KM:* ${kmTotales}\n`;
+            textoResumen += `📚 *Total Clases:* ${totalClases}\n\n`;
+            textoResumen += `*Detalle de Clases:*\n`;
+
+            estadoJornada.clases.forEach(clase => {
+                textoResumen += `• ${clase.hora || '--:--'} - ${clase.alumno || 'Sin nombre'} [Permiso ${clase.permiso || 'N/A'}] (${clase.numClases || 0} cl.)\n`;
+            });
+
+            const urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoResumen)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+    </script>
+</body>
+</html>
