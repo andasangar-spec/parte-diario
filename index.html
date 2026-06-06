@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        /* Garantiza el área táctil mínima recomendada para dispositivos móviles */
         input, select, button {
             min-height: 48px;
         }
@@ -80,7 +81,7 @@
                 📲 Compartir por WhatsApp
             </button>
             <button onclick="exportarPDF()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                📄 Descargar PDF
+                📄 Descargar PDF (A5)
             </button>
             <button onclick="limpiarJornada()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold rounded-xl border border-rose-200 transition-all flex items-center justify-center gap-2">
                 🗑️ Limpiar Jornada
@@ -94,6 +95,7 @@
             clases: []
         };
 
+        // Menú desplegable con los permisos solicitados
         const opcionesPermisos = ['AM', 'A1', 'A2', 'A', 'B', 'BE', 'C', 'CE', 'D'];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -129,7 +131,6 @@
             });
         }
 
-        // RENDERIZADO FLEXIBLE UI/UX (MÓVIL-FIRST)
         function renderizarTabla() {
             const cuerpo = document.getElementById('tabla-cuerpo');
             cuerpo.innerHTML = '';
@@ -137,7 +138,7 @@
             estadoJornada.clases.forEach((clase, index) => {
                 const elementoFila = document.createElement('div');
                 
-                // Clases CSS mágicas: En móvil crea una tarjeta separada, en PC se alinea en rejilla perfecta
+                // Diseño responsivo: Tarjetas verticales en móvil, celdas de tabla alineadas en PC
                 elementoFila.className = "bg-white md:bg-transparent rounded-xl md:rounded-none p-4 md:p-4 shadow-sm md:shadow-none border border-slate-100 md:border-none md:grid md:grid-cols-12 md:gap-4 items-center hover:bg-slate-50/80 transition-all flex flex-col gap-3 md:flex-row";
 
                 let opcionesHTML = `<option value="">--</option>`;
@@ -225,21 +226,59 @@
             }
         }
 
+        // GENERACIÓN PROFESIONAL DE ARCHIVO PDF (OPTIMIZADO PARA A5 EN UNA SOLA PÁGINA)
         function exportarPDF() {
             const elemento = document.getElementById('contenido-completo');
+            
+            // 1. Ocultar temporalmente los botones de acción para que no salgan en el PDF
             const botones = document.querySelectorAll('button');
             botones.forEach(b => b.style.display = 'none');
 
+            // 2. Almacenar estilos originales de responsive para restaurarlos después
+            const anchoOriginal = elemento.style.width;
+            const margenOriginal = elemento.style.margin;
+
+            // 3. Forzar diseño compacto optimizado para la relación de aspecto A5
+            elemento.style.width = "520px"; 
+            elemento.style.margin = "0 auto";
+
+            // 4. Eliminar temporalmente las restricciones de desbordamiento que cortan los datos
+            const elementosConOverflow = elemento.querySelectorAll('.overflow-hidden, .overflow-x-auto');
+            elementosConOverflow.forEach(el => {
+                el.classList.remove('overflow-hidden', 'overflow-x-auto');
+            });
+
+            // 5. Configuración estricta para Lienzo A5 en una sola página
             const opcionesConfig = {
-                margin:       10,
+                margin:       6, 
                 filename:     `Parte_Diario_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { 
+                    scale: 2,          
+                    scrollY: 0,        
+                    scrollX: 0,
+                    useCORS: true,     
+                    logging: false
+                },
+                jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' },
+                pagebreak:    { mode: 'avoid' } 
             };
 
+            // 6. Ejecutar renderizado y restauración de la UI de la Web App
             html2pdf().from(elemento).set(opcionesConfig).save().then(() => {
                 botones.forEach(b => b.style.display = '');
+                elemento.style.width = anchoOriginal;
+                elemento.style.margin = margenOriginal;
+                
+                elementosConOverflow.forEach(el => {
+                    if (el.tagName === 'MAIN') el.classList.add('overflow-hidden');
+                    if (el.tagName === 'DIV') el.classList.add('overflow-x-auto');
+                });
+            }).catch(err => {
+                console.error("Error optimizando el PDF:", err);
+                botones.forEach(b => b.style.display = '');
+                elemento.style.width = anchoOriginal;
+                elemento.style.margin = margenOriginal;
             });
         }
 
