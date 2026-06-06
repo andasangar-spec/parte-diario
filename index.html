@@ -218,13 +218,39 @@
             }
         }
 
-        // MOTOR DE IMPRESIÓN ACTUALIZADO
+        // MOTOR DE IMPRESIÓN REESCRITO AL 100% (SOLUCIÓN DEFINITIVA PARA BLANCO)
         function exportarPDF() {
+            const mainUI = document.getElementById('contenido-completo');
             const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
             const kf = parseFloat(estadoJornada.cabecera.kmFinal) || 0;
             const kmTotales = kf - ki >= 0 ? `${kf - ki} km` : '0 km';
             const totalClases = document.getElementById('total-clases').innerText;
 
+            // 1. Pantalla de carga profesional que cubre todo
+            const pantallaCarga = document.createElement('div');
+            pantallaCarga.style.position = 'fixed';
+            pantallaCarga.style.top = '0';
+            pantallaCarga.style.left = '0';
+            pantallaCarga.style.width = '100vw';
+            pantallaCarga.style.height = '100vh';
+            pantallaCarga.style.backgroundColor = '#ffffff';
+            pantallaCarga.style.display = 'flex';
+            pantallaCarga.style.flexDirection = 'column';
+            pantallaCarga.style.justifyContent = 'center';
+            pantallaCarga.style.alignItems = 'center';
+            pantallaCarga.style.zIndex = '999999';
+            pantallaCarga.innerHTML = `
+                <div style="width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
+                <h2 style="font-size: 20px; font-weight: bold; color: #1e1b4b; font-family: sans-serif;">Generando PDF...</h2>
+                <p style="color: #64748b; font-family: sans-serif; font-size: 14px; margin-top: 5px;">Por favor, no cierres la ventana.</p>
+                <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+            `;
+            document.body.appendChild(pantallaCarga);
+
+            // 2. Ocultamos la UI principal por completo
+            mainUI.style.display = 'none';
+
+            // 3. Generamos las filas
             let filasTablaHtml = '';
             estadoJornada.clases.forEach(clase => {
                 filasTablaHtml += `
@@ -237,14 +263,10 @@
                 `;
             });
 
-            // Creamos el elemento físico
+            // 4. Inyectamos el elemento A5 directamente en el flujo del DOM (posicionado arriba)
             const elementoFisico = document.createElement('div');
-            
-            // CORRECCIÓN CLAVE: Debe estar en el DOM pero oculto fuera del área visible
-            elementoFisico.style.position = 'absolute';
-            elementoFisico.style.left = '-9999px';
-            elementoFisico.style.top = '-9999px';
             elementoFisico.style.width = '540px'; 
+            elementoFisico.style.margin = '0 auto'; 
             elementoFisico.style.padding = '10px'; 
             elementoFisico.style.fontFamily = 'system-ui, -apple-system, sans-serif';
             elementoFisico.style.backgroundColor = '#ffffff';
@@ -287,34 +309,44 @@
                 </div>
             `;
 
-            // LO INYECTAMOS AL DOM PARA QUE SE PUEDA RENDERIZAR
             document.body.appendChild(elementoFisico);
 
-            const configuracionPdf = {
-                margin:       [5, 5, 5, 5], 
-                filename:     `Parte_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    windowWidth: 540, 
-                    logging: false 
-                },
-                jsPDF:        { 
-                    unit: 'mm', 
-                    format: 'a5', 
-                    orientation: 'portrait' 
-                }
-            };
+            // 5. Clave para evitar el renderizado en blanco: Forzar el scroll arriba del todo
+            window.scrollTo(0, 0);
 
-            // GENERAMOS EL PDF Y LUEGO ELIMINAMOS EL CONTENEDOR DEL DOM
-            html2pdf().set(configuracionPdf).from(elementoFisico).save().then(() => {
-                document.body.removeChild(elementoFisico);
-            }).catch(err => {
-                console.error("Fallo crítico en motor PDF:", err);
-                document.body.removeChild(elementoFisico);
-                alert("Error al generar el PDF. Revisa la consola.");
-            });
+            // 6. Retrasamos la ejecución 300ms para asegurar que el navegador pinte el DOM
+            setTimeout(() => {
+                const configuracionPdf = {
+                    margin:       [5, 5, 5, 5], 
+                    filename:     `Parte_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
+                    image:        { type: 'jpeg', quality: 1.0 },
+                    html2canvas:  { 
+                        scale: 2, 
+                        useCORS: true, 
+                        scrollY: 0, // Fuerza la captura desde Y=0
+                        windowWidth: 540 // Asegura que el ancho sea el correcto
+                    },
+                    jsPDF:        { 
+                        unit: 'mm', 
+                        format: 'a5', 
+                        orientation: 'portrait' 
+                    }
+                };
+
+                html2pdf().set(configuracionPdf).from(elementoFisico).save().then(() => {
+                    // 7. Limpieza y restauración al finalizar el éxito
+                    document.body.removeChild(elementoFisico);
+                    document.body.removeChild(pantallaCarga);
+                    mainUI.style.display = 'block';
+                }).catch(err => {
+                    // Restauración en caso de fallo
+                    console.error("Fallo crítico en motor PDF:", err);
+                    document.body.removeChild(elementoFisico);
+                    document.body.removeChild(pantallaCarga);
+                    mainUI.style.display = 'block';
+                    alert("Error al generar el PDF. Revisa la consola.");
+                });
+            }, 300);
         }
 
         function compartirParte() {
