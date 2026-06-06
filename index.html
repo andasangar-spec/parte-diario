@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Garantiza el área táctil mínima recomendada para dispositivos móviles */
         input, select, button {
             min-height: 48px;
         }
@@ -219,6 +218,7 @@
             }
         }
 
+        // MOTOR DE IMPRESIÓN ACTUALIZADO
         function exportarPDF() {
             const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
             const kf = parseFloat(estadoJornada.cabecera.kmFinal) || 0;
@@ -237,12 +237,19 @@
                 `;
             });
 
-            const elementoVirtual = document.createElement('div');
-            elementoVirtual.style.padding = '10px'; 
-            elementoVirtual.style.fontFamily = 'system-ui, -apple-system, sans-serif';
-            elementoVirtual.style.backgroundColor = '#ffffff';
+            // Creamos el elemento físico
+            const elementoFisico = document.createElement('div');
+            
+            // CORRECCIÓN CLAVE: Debe estar en el DOM pero oculto fuera del área visible
+            elementoFisico.style.position = 'absolute';
+            elementoFisico.style.left = '-9999px';
+            elementoFisico.style.top = '-9999px';
+            elementoFisico.style.width = '540px'; 
+            elementoFisico.style.padding = '10px'; 
+            elementoFisico.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+            elementoFisico.style.backgroundColor = '#ffffff';
 
-            elementoVirtual.innerHTML = `
+            elementoFisico.innerHTML = `
                 <div style="text-align: center; margin-bottom: 10px; border-bottom: 2px solid #4f46e5; padding-bottom: 5px;">
                     <h1 style="font-size: 15px; font-weight: 800; color: #1e1b4b; text-transform: uppercase; margin: 0; letter-spacing: 0.5px;">Parte de Trabajo Diario</h1>
                 </div>
@@ -280,6 +287,9 @@
                 </div>
             `;
 
+            // LO INYECTAMOS AL DOM PARA QUE SE PUEDA RENDERIZAR
+            document.body.appendChild(elementoFisico);
+
             const configuracionPdf = {
                 margin:       [5, 5, 5, 5], 
                 filename:     `Parte_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
@@ -297,9 +307,13 @@
                 }
             };
 
-            html2pdf().set(configuracionPdf).from(elementoVirtual).save().catch(err => {
+            // GENERAMOS EL PDF Y LUEGO ELIMINAMOS EL CONTENEDOR DEL DOM
+            html2pdf().set(configuracionPdf).from(elementoFisico).save().then(() => {
+                document.body.removeChild(elementoFisico);
+            }).catch(err => {
                 console.error("Fallo crítico en motor PDF:", err);
-                alert("Error al generar el PDF. Inténtalo de nuevo.");
+                document.body.removeChild(elementoFisico);
+                alert("Error al generar el PDF. Revisa la consola.");
             });
         }
 
