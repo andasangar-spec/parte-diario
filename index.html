@@ -95,7 +95,6 @@
             clases: []
         };
 
-        // Menú desplegable con los permisos solicitados
         const opcionesPermisos = ['AM', 'A1', 'A2', 'A', 'B', 'BE', 'C', 'CE', 'D'];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -137,8 +136,6 @@
 
             estadoJornada.clases.forEach((clase, index) => {
                 const elementoFila = document.createElement('div');
-                
-                // Diseño responsivo: Tarjetas verticales en móvil, celdas de tabla alineadas en PC
                 elementoFila.className = "bg-white md:bg-transparent rounded-xl md:rounded-none p-4 md:p-4 shadow-sm md:shadow-none border border-slate-100 md:border-none md:grid md:grid-cols-12 md:gap-4 items-center hover:bg-slate-50/80 transition-all flex flex-col gap-3 md:flex-row";
 
                 let opcionesHTML = `<option value="">--</option>`;
@@ -151,24 +148,20 @@
                         <span class="text-xs font-bold text-slate-400 uppercase md:hidden">Hora</span>
                         <input type="time" value="${clase.hora || ''}" oninput="actualizarFila(${index}, 'hora', this.value)" class="bg-slate-50 md:bg-transparent border border-slate-200 md:border-b md:border-transparent focus:border-indigo-500 focus:outline-none rounded-lg md:rounded-none px-2 py-1 text-sm md:text-base w-32 md:w-full text-center md:text-left">
                     </div>
-
                     <div class="w-full md:col-span-5 flex flex-col md:block">
                         <span class="text-xs font-bold text-slate-400 uppercase md:hidden mb-1">Alumno</span>
                         <input type="text" placeholder="Nombre completo del alumno" value="${clase.alumno || ''}" oninput="actualizarFila(${index}, 'alumno', this.value)" class="w-full bg-slate-50 md:bg-transparent border border-slate-200 md:border-b md:border-transparent focus:border-indigo-500 focus:outline-none rounded-lg md:rounded-none px-3 py-2 md:px-0 md:py-1 text-base font-medium text-slate-700">
                     </div>
-
                     <div class="w-full md:col-span-2 flex justify-between items-center md:block">
                         <span class="text-xs font-bold text-slate-400 uppercase md:hidden">Permiso</span>
                         <select onchange="actualizarFila(${index}, 'permiso', this.value)" class="w-32 md:w-full bg-slate-50 border border-slate-200 rounded-lg md:rounded p-2 md:p-1 text-sm focus:outline-none focus:border-indigo-500 font-semibold text-center md:text-left">
                             ${opcionesHTML}
                         </select>
                     </div>
-
                     <div class="w-full md:col-span-2 flex justify-between items-center md:block">
                         <span class="text-xs font-bold text-slate-400 uppercase md:hidden">Nº Clases</span>
                         <input type="number" min="0" placeholder="0" value="${clase.numClases || ''}" oninput="actualizarFila(${index}, 'numClases', this.value)" class="w-20 md:w-full bg-slate-50 md:bg-transparent border border-slate-200 md:border-b md:border-transparent focus:border-indigo-500 focus:outline-none rounded-lg md:rounded-none px-2 py-1 font-bold text-center text-lg md:text-base text-indigo-600">
                     </div>
-
                     <div class="w-full md:col-span-1 text-right md:text-center mt-2 md:mt-0 pt-2 md:pt-0 border-t border-slate-100 md:border-none">
                         <button onclick="eliminarFila(${index})" class="text-rose-500 hover:text-rose-700 font-semibold text-sm md:text-lg flex items-center justify-center gap-1 w-full md:w-auto bg-rose-50 md:bg-transparent py-2 md:py-0 rounded-lg md:rounded-none transition-colors">
                             <span class="md:hidden text-xs uppercase font-bold text-rose-600">Eliminar Fila</span> ✕
@@ -226,59 +219,99 @@
             }
         }
 
-        // GENERACIÓN PROFESIONAL DE ARCHIVO PDF (OPTIMIZADO PARA A5 EN UNA SOLA PÁGINA)
+        // MOTOR DE IMPRESIÓN EXCLUSIVO PARA DOSSIER EN HOJA ÚNICA A5
         function exportarPDF() {
-            const elemento = document.getElementById('contenido-completo');
-            
-            // 1. Ocultar temporalmente los botones de acción para que no salgan en el PDF
-            const botones = document.querySelectorAll('button');
-            botones.forEach(b => b.style.display = 'none');
+            // 1. Crear un contenedor temporal oculto en la pantalla pero visible para el compilador de gráficos
+            const layoutImpresion = document.createElement('div');
+            layoutImpresion.style.position = 'fixed';
+            layoutImpresion.style.top = '0';
+            layoutImpresion.style.left = '0';
+            layoutImpresion.style.width = '540px'; // Ancho matemático perfecto calibrado para A5
+            layoutImpresion.style.zIndex = '-100'; // Se ubica detrás de la app real para que no parpadee
+            layoutImpresion.style.backgroundColor = '#ffffff';
+            layoutImpresion.style.padding = '14px';
+            layoutImpresion.style.fontFamily = 'system-ui, -apple-system, sans-serif';
 
-            // 2. Almacenar estilos originales de responsive para restaurarlos después
-            const anchoOriginal = elemento.style.width;
-            const margenOriginal = elemento.style.margin;
+            const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
+            const kf = parseFloat(estadoJornada.cabecera.kmFinal) || 0;
+            const kmTotales = kf - ki >= 0 ? `${kf - ki} km` : '0 km';
+            const totalClases = document.getElementById('total-clases').innerText;
 
-            // 3. Forzar diseño compacto optimizado para la relación de aspecto A5
-            elemento.style.width = "520px"; 
-            elemento.style.margin = "0 auto";
-
-            // 4. Eliminar temporalmente las restricciones de desbordamiento que cortan los datos
-            const elementosConOverflow = elemento.querySelectorAll('.overflow-hidden, .overflow-x-auto');
-            elementosConOverflow.forEach(el => {
-                el.classList.remove('overflow-hidden', 'overflow-x-auto');
+            // 2. Mapear dinámicamente las clases del profesor a filas de tabla ultra-compactas (una sola línea por alumno)
+            let filasTablaHtml = '';
+            estadoJornada.clases.forEach(clase => {
+                filasTablaHtml += `
+                    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 11px; color: #334155;">
+                        <td style="padding: 5px; text-align: center; font-weight: 500;">${clase.hora || '--:--'}</td>
+                        <td style="padding: 5px; font-weight: 600; text-transform: uppercase;">${clase.alumno || 'SIN NOMBRE'}</td>
+                        <td style="padding: 5px; text-align: center; font-weight: bold; color: #1e1b4b;">${clase.permiso || '--'}</td>
+                        <td style="padding: 5px; text-align: center; font-weight: bold; color: #4f46e5; font-size: 12px;">${clase.numClases || '0'}</td>
+                    </tr>
+                `;
             });
 
-            // 5. Configuración estricta para Lienzo A5 en una sola página
-            const opcionesConfig = {
-                margin:       6, 
-                filename:     `Parte_Diario_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
+            // 3. Inyectar la plantilla limpia con diseño formal de alta densidad
+            layoutImpresion.innerHTML = `
+                <div style="text-align: center; margin-bottom: 12px; border-bottom: 2px solid #4f46e5; padding-bottom: 6px;">
+                    <h1 style="font-size: 16px; font-weight: 800; color: #1e1b4b; text-transform: uppercase; margin: 0; letter-spacing: 0.5px;">Parte de Trabajo Diario</h1>
+                </div>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px;">
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>Fecha:</strong> ${estadoJornada.cabecera.fecha || '-'}</td>
+                        <td style="padding: 5px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>Profesor:</strong> ${estadoJornada.cabecera.profesor || '-'}</td>
+                        <td style="padding: 5px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>Matrícula:</strong> ${estadoJornada.cabecera.matricula || '-'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #e2e8f0;"><strong>KM Inicial:</strong> ${ki}</td>
+                        <td style="padding: 5px; border: 1px solid #e2e8f0;"><strong>KM Final:</strong> ${kf}</td>
+                        <td style="padding: 5px; border: 1px solid #e2e8f0; background-color: #eef2ff; color: #4338ca; font-weight: bold;"><strong>Total:</strong> ${kmTotales}</td>
+                    </tr>
+                </table>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1; text-transform: uppercase; font-size: 10px; font-weight: bold; color: #475569;">
+                            <th style="padding: 5px; width: 15%; text-align: center;">Hora</th>
+                            <th style="padding: 5px; width: 55%; text-align: left;">Alumno</th>
+                            <th style="padding: 5px; width: 15%; text-align: center;">Permiso</th>
+                            <th style="padding: 5px; width: 15%; text-align: center;">Nº Clases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filasTablaHtml || '<tr><td colspan="4" style="text-align:center; padding: 12px; color: #94a3b8; font-size: 11px;">No se registran clases en esta jornada.</td></tr>'}
+                    </tbody>
+                </table>
+
+                <div style="background-color: #0f172a; color: #ffffff; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; font-weight: bold; font-size: 12px;">
+                    <span style="color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Total Clases de la Jornada:</span>
+                    <span style="color: #34d399; font-size: 16px;">${totalClases}</span>
+                </div>
+            `;
+
+            document.body.appendChild(layoutImpresion);
+
+            // 4. Parámetros de conversión matemática estricta a un único plano A5
+            const configuracionPdf = {
+                margin:       5, // Margen milimétrico mínimo para expandir área útil
+                filename:     `Parte_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
-                    scale: 2,          
-                    scrollY: 0,        
+                    scale: 2.5, // Mayor nitidez de texto
+                    useCORS: true, 
+                    scrollY: 0, 
                     scrollX: 0,
-                    useCORS: true,     
-                    logging: false
+                    logging: false 
                 },
-                jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' },
-                pagebreak:    { mode: 'avoid' } 
+                jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
             };
 
-            // 6. Ejecutar renderizado y restauración de la UI de la Web App
-            html2pdf().from(elemento).set(opcionesConfig).save().then(() => {
-                botones.forEach(b => b.style.display = '');
-                elemento.style.width = anchoOriginal;
-                elemento.style.margin = margenOriginal;
-                
-                elementosConOverflow.forEach(el => {
-                    if (el.tagName === 'MAIN') el.classList.add('overflow-hidden');
-                    if (el.tagName === 'DIV') el.classList.add('overflow-x-auto');
-                });
+            // 5. Compilar documento y limpiar rastro en memoria
+            html2pdf().from(layoutImpresion).set(configuracionPdf).save().then(() => {
+                document.body.removeChild(layoutImpresion);
             }).catch(err => {
-                console.error("Error optimizando el PDF:", err);
-                botones.forEach(b => b.style.display = '');
-                elemento.style.width = anchoOriginal;
-                elemento.style.margin = margenOriginal;
+                console.error("Fallo crítico en motor PDF:", err);
+                document.body.removeChild(layoutImpresion);
             });
         }
 
@@ -288,29 +321,4 @@
             const totalClases = document.getElementById('total-clases').innerText;
             
             let textoResumen = `*RESUMEN PARTE DIARIO*\n`;
-            textoResumen += `📅 Fecha: ${estadoJornada.cabecera.fecha || '-'}\n`;
-            textoResumen += `👨‍🏫 Profesor: ${estadoJornada.cabecera.profesor || '-'}\n`;
-            textoResumen += `🚗 Matrícula: ${estadoJornada.cabecera.matricula || '-'}\n`;
-            textoResumen += `🛣️ KM Recorridos: ${kf - ki} km\n`;
-            textoResumen += `📚 Total Clases: ${totalClases}\n\n`;
-            textoResumen += `*DETALLE DE CLASES:*\n`;
-
-            estadoJornada.clases.forEach(c => {
-                if(c.alumno) {
-                    textoResumen += `• ${c.hora || '00:00'} | ${c.alumno} | Permiso: ${c.permiso || 'N/A'} | Clases: ${c.numClases}\n`;
-                }
-            });
-
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Parte de Trabajo Diario',
-                    text: textoResumen
-                }).catch(console.error);
-            } else {
-                const urlWhatsapp = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoResumen)}`;
-                window.open(urlWhatsapp, '_blank');
-            }
-        }
-    </script>
-</body>
-</html>
+            textoResumen += `📅 Fecha: ${
