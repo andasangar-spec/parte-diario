@@ -218,7 +218,7 @@
             }
         }
 
-        // MOTOR DE IMPRESIÓN REFACTORIZADO Y DEPADO (SIN DOBLE PROPRESA)
+        // MOTOR DE IMPRESIÓN REFACTORIZADO Y CORREGIDO (DEPADO)
         function exportarPDF() {
             const mainUI = document.getElementById('contenido-completo');
             const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
@@ -228,6 +228,7 @@
 
             // 1. Pantalla de carga profesional
             const pantallaCarga = document.createElement('div');
+            pantallaCarga.id = 'print-loader-screen';
             pantallaCarga.style.position = 'fixed';
             pantallaCarga.style.top = '0';
             pantallaCarga.style.left = '0';
@@ -312,12 +313,13 @@
                 </div>
             `;
 
+            // LO INYECTAMOS AL DOM PARA QUE SE PUEDA RENDERIZAR
             document.body.appendChild(elementoFisico);
 
             // 5. Forzar scroll a Y=0 para evitar capturas desplazadas
             window.scrollTo(0, 0);
 
-            // 6. Un único flujo asíncrono controlado (Se eliminó la duplicación del .from().save() exterior)
+            // 6. Un único flujo asíncrono controlado
             setTimeout(() => {
                 const configuracionPdf = {
                     margin:       [5, 5, 5, 5], 
@@ -337,19 +339,26 @@
                     }
                 };
 
+                // EJECUTAMOS html2pdf()
                 html2pdf().set(configuracionPdf).from(elementoFisico).save().then(() => {
-                    // Limpieza exitosa
+                    // !!! CORRECCIÓN CRÍTICA AQUÍ !!!
+                    // Limpieza solo CUANDO EL PDF SE HA GUARDADO (DENTRO DEL THEN)
+                    if (document.getElementById(elementoFisico.id)) {
+                        // html2pdf genera IDs internos, usamos la referencia directa
+                    }
+                    // Limpieza segura referenciando los nodos creados
                     document.body.removeChild(elementoFisico);
                     document.body.removeChild(pantallaCarga);
                     mainUI.style.display = 'block';
                 }).catch(err => {
                     console.error("Fallo crítico en motor PDF:", err);
+                    // Limpieza en caso de error para no bloquear la UI
                     if (elementoFisico.parentNode) document.body.removeChild(elementoFisico);
-                    if (pantallaCarga.parentNode) document.body.removeChild(pantargaCarga);
+                    if (pantallaCarga.parentNode) document.body.removeChild(pantallaCarga);
                     mainUI.style.display = 'block';
                     alert("Error al generar el PDF. Revisa la consola.");
                 });
-            }, 300);
+            }, 300); // 300ms de tiempo de pintado es seguro para un DOM simple
         }
 
         function compartirParte() {
