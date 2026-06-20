@@ -67,7 +67,7 @@
             </div>
 
             <div id="tabla-cuerpo" class="p-4 md:p-0 bg-slate-50 md:bg-white space-y-4 md:space-y-0 divide-y-0 md:divide-y md:divide-slate-100">
-                </div>
+            </div>
 
             <div class="p-4 bg-slate-900 text-white flex justify-between items-center font-bold text-lg">
                 <span class="text-slate-400 text-sm uppercase tracking-wider">Total Clases de la Jornada:</span>
@@ -218,8 +218,7 @@
             }
         }
 
-        // MOTOR DE IMPRESIÓN ACTUALIZADO
-        // MOTOR DE IMPRESIÓN REESCRITO AL 100% (SOLUCIÓN DEFINITIVA PARA BLANCO)
+        // MOTOR DE IMPRESIÓN REFACTORIZADO Y DEPADO (SIN DOBLE PROPRESA)
         function exportarPDF() {
             const mainUI = document.getElementById('contenido-completo');
             const ki = parseFloat(estadoJornada.cabecera.kmInicial) || 0;
@@ -227,7 +226,7 @@
             const kmTotales = kf - ki >= 0 ? `${kf - ki} km` : '0 km';
             const totalClases = document.getElementById('total-clases').innerText;
 
-            // 1. Pantalla de carga profesional que cubre todo
+            // 1. Pantalla de carga profesional
             const pantallaCarga = document.createElement('div');
             pantallaCarga.style.position = 'fixed';
             pantallaCarga.style.top = '0';
@@ -248,7 +247,7 @@
             `;
             document.body.appendChild(pantallaCarga);
 
-            // 2. Ocultamos la UI principal por completo
+            // 2. Ocultamos la UI principal
             mainUI.style.display = 'none';
 
             // 3. Generamos las filas
@@ -264,11 +263,8 @@
                 `;
             });
 
-            // Creamos el elemento físico
-            // 4. Inyectamos el elemento A5 directamente en el flujo del DOM (posicionado arriba)
+            // 4. Creamos el elemento físico
             const elementoFisico = document.createElement('div');
-            
-            // CORRECCIÓN CLAVE: Debe estar en el DOM pero oculto fuera del área visible
             elementoFisico.style.position = 'absolute';
             elementoFisico.style.left = '-9999px';
             elementoFisico.style.top = '-9999px';
@@ -310,44 +306,18 @@
                     </tbody>
                 </table>
 
-                <div style="background-color: #0f172a; color: #ffffff; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; font-weight: bold; font-size: 11px;">
-                    <span style="color: #94a3b8; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;">Total Clases de la Jornada:</span>
-                    <span style="color: #34d399; font-size: 14px;">${totalClases}</span>
+                <div style="background-color: #ffffff; color: #000000; border: 1.5px solid #1e1b4b; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; font-weight: bold; font-size: 11px;">
+                    <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">Total Clases de la Jornada:</span>
+                    <span style="font-size: 15px; font-weight: 900;">${totalClases}</span>
                 </div>
             `;
 
-            // LO INYECTAMOS AL DOM PARA QUE SE PUEDA RENDERIZAR
             document.body.appendChild(elementoFisico);
 
-            const configuracionPdf = {
-                margin:       [5, 5, 5, 5], 
-                filename:     `Parte_${estadoJornada.cabecera.fecha || 'sin_fecha'}.pdf`,
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    windowWidth: 540, 
-                    logging: false 
-                },
-                jsPDF:        { 
-                    unit: 'mm', 
-                    format: 'a5', 
-                    orientation: 'portrait' 
-                }
-            };
-
-            // GENERAMOS EL PDF Y LUEGO ELIMINAMOS EL CONTENEDOR DEL DOM
-            html2pdf().set(configuracionPdf).from(elementoFisico).save().then(() => {
-                document.body.removeChild(elementoFisico);
-            }).catch(err => {
-                console.error("Fallo crítico en motor PDF:", err);
-                document.body.removeChild(elementoFisico);
-                alert("Error al generar el PDF. Revisa la consola.");
-            });
-            // 5. Clave para evitar el renderizado en blanco: Forzar el scroll arriba del todo
+            // 5. Forzar scroll a Y=0 para evitar capturas desplazadas
             window.scrollTo(0, 0);
 
-            // 6. Retrasamos la ejecución 300ms para asegurar que el navegador pinte el DOM
+            // 6. Un único flujo asíncrono controlado (Se eliminó la duplicación del .from().save() exterior)
             setTimeout(() => {
                 const configuracionPdf = {
                     margin:       [5, 5, 5, 5], 
@@ -356,8 +326,9 @@
                     html2canvas:  { 
                         scale: 2, 
                         useCORS: true, 
-                        scrollY: 0, // Fuerza la captura desde Y=0
-                        windowWidth: 540 // Asegura que el ancho sea el correcto
+                        scrollY: 0, 
+                        windowWidth: 540,
+                        logging: false
                     },
                     jsPDF:        { 
                         unit: 'mm', 
@@ -367,15 +338,14 @@
                 };
 
                 html2pdf().set(configuracionPdf).from(elementoFisico).save().then(() => {
-                    // 7. Limpieza y restauración al finalizar el éxito
+                    // Limpieza exitosa
                     document.body.removeChild(elementoFisico);
                     document.body.removeChild(pantallaCarga);
                     mainUI.style.display = 'block';
                 }).catch(err => {
-                    // Restauración en caso de fallo
                     console.error("Fallo crítico en motor PDF:", err);
-                    document.body.removeChild(elementoFisico);
-                    document.body.removeChild(pantallaCarga);
+                    if (elementoFisico.parentNode) document.body.removeChild(elementoFisico);
+                    if (pantallaCarga.parentNode) document.body.removeChild(pantargaCarga);
                     mainUI.style.display = 'block';
                     alert("Error al generar el PDF. Revisa la consola.");
                 });
