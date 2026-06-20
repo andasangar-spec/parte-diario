@@ -2,55 +2,97 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parte de Trabajo A5 Profesional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Parte de Trabajo Digital V2</title>
+    <!-- Cargamos una versión estable de html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --blue: #1a73e8; --gray: #5f6368; --light: #f8f9fa; }
-        body { font-family: Arial, sans-serif; background: #eee; margin: 0; padding: 0; }
+        :root {
+            --primary: #1a73e8;
+            --secondary: #188038;
+            --danger: #d93025;
+            --gray: #5f6368;
+            --bg-page: #f1f3f4;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg-page); margin: 0; padding: 10px; }
         
         #parte-completo { 
-            width: 148mm; 
-            min-height: 210mm; 
+            max-width: 800px; 
             margin: auto; 
             background: white; 
-            padding: 8mm; 
+            padding: 30px; 
+            border-radius: 8px;
             box-sizing: border-box;
         }
 
-        h2 { text-align: center; color: var(--blue); margin: 0 0 8px 0; font-size: 16px; border-bottom: 2px solid var(--blue); padding-bottom: 5px; }
-        
-        .header-section { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-        label { display: block; font-size: 9px; font-weight: bold; color: var(--gray); margin-bottom: 2px; }
-        input, select, textarea { width: 100%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 10px; box-sizing: border-box; }
+        h2 { text-align: center; color: #333; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-top: 0; }
 
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: var(--light); font-size: 10px; padding: 5px; border: 1px solid #ccc; }
-        td { border: 1px solid #ccc; padding: 1px; text-align: center; height: 22px; }
+        .header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .full { grid-column: span 2; }
         
-        /* Fila de Total Optimizado para Impresión */
-        .total-row { 
-            background: #ffffff !important; 
-            color: #000000 !important;
+        label { display: block; font-size: 11px; font-weight: bold; color: var(--gray); margin-bottom: 3px; text-transform: uppercase; }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 14px;
+            background: #fff;
+            color: #000;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
+        th { background: #f8f9fa; border: 1px solid #ddd; padding: 8px; font-size: 12px; text-align: left; }
+        td { border: 1px solid #ddd; padding: 2px; }
+        
+        td input, td select { border: none; padding: 8px; background: transparent; }
+
+        .km-section { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            margin-top: 25px; 
+            background: #fdfdfd; 
+            padding: 15px; 
+            border: 1px solid #eee;
+        }
+        .km-total { background: #e8f0fe; font-weight: bold; text-align: center; color: var(--primary); }
+
+        .firma-box { margin-top: 25px; }
+        canvas { 
+            border: 1px solid #ccc; 
+            width: 100%; 
+            height: 150px; 
+            background: #fff; 
+            touch-action: none;
+        }
+
+        .no-print { 
+            max-width: 800px; 
+            margin: 20px auto; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+        }
+        button { 
+            padding: 15px; 
+            border: none; 
+            border-radius: 6px; 
+            color: white; 
             font-weight: bold; 
-            font-size: 13px; /* Letra más grande */
+            cursor: pointer; 
+            font-size: 15px;
         }
-        .total-row td {
-            border: 2px solid #000000 !important; /* Marco negro grueso */
-            padding: 5px 2px;
+        .btn-pdf { background: var(--danger); grid-column: span 2; }
+        .btn-wa { background: var(--secondary); }
+        .btn-mail { background: var(--primary); }
+        .btn-clear { background: var(--gray); grid-column: span 2; }
+
+        @media (max-width: 600px) {
+            .header-grid, .km-section, .no-print { grid-template-columns: 1fr; }
+            .btn-pdf, .btn-clear, .btn-wa, .btn-mail { grid-column: span 1; }
         }
-
-        .obs-section { margin-top: 8px; }
-        .obs-section textarea { width: 100%; height: 40px; resize: none; font-family: inherit; }
-
-        .km-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; background: var(--light); padding: 6px; border-radius: 4px; }
-        
-        .no-print { max-width: 148mm; margin: 15px auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 5px; }
-        button { padding: 10px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .btn-pdf { background: #d93025; grid-column: span 3; }
-        .btn-wa { background: #188038; } .btn-email { background: #1a73e8; } .btn-clear { background: #5f6368; }
-
-        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
@@ -58,122 +100,176 @@
 <div id="parte-completo">
     <h2>PARTE DE TRABAJO DIARIO</h2>
 
-    <div class="header-section">
-        <div><label>PROFESOR</label><input type="text" id="prof"></div>
-        <div><label>FECHA</label><input type="date" id="fecha"></div>
-        <div><label>MATRÍCULA</label><input type="text" id="mat"></div>
+    <div class="header-grid">
+        <div class="full">
+            <label>Profesor</label>
+            <input type="text" id="prof" placeholder="Escribe tu nombre">
+        </div>
+        <div>
+            <label>Fecha</label>
+            <input type="date" id="fecha">
+        </div>
+        <div>
+            <label>Matrícula Vehículo</label>
+            <input type="text" id="mat" placeholder="0000-XXX">
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 22%;">HORA</th>
-                <th style="width: 60%;">ALUMNO</th>
-                <th style="width: 18%;">CLASES</th>
+                <th style="width:25%">HORA</th>
+                <th style="width:60%">ALUMNO</th>
+                <th style="width:15%">CLASES</th>
             </tr>
         </thead>
-        <tbody id="tabla-filas"></tbody>
-        <tfoot>
-            <tr class="total-row">
-                <td colspan="2" style="text-align: right; padding-right: 15px;">TOTAL CLASES DEL DÍA:</td>
-                <td id="suma-total">0</td>
-            </tr>
-        </tfoot>
+        <tbody id="tabla-cuerpo"></tbody>
     </table>
 
-    <div class="obs-section">
-        <label>OBSERVACIONES</label>
-        <textarea id="obs" placeholder="Escribe aquí notas o incidencias..."></textarea>
+    <div class="km-section">
+        <div><label>Km Inicio</label><input type="number" id="kmi" oninput="calc()"></div>
+        <div><label>Km Final</label><input type="number" id="kmf" oninput="calc()"></div>
+        <div><label>Total Recorrido</label><input type="text" id="kmt" class="km-total" readonly value="0"></div>
     </div>
 
-    <div class="km-section">
-        <div><label>KM INICIO</label><input type="number" id="kmi" oninput="calcKm()"></div>
-        <div><label>KM FINAL</label><input type="number" id="kmf" oninput="calcKm()"></div>
-        <div><label>TOTAL KM</label><input type="text" id="kmt" readonly style="background:#e8f0fe; text-align:center; font-weight:bold;"></div>
+    <div style="margin-top:15px;">
+        <label>Observaciones</label>
+        <textarea id="obs" rows="2" placeholder="Notas del día..."></textarea>
+    </div>
+
+    <div class="firma-box">
+        <label>Firma del Profesor</label>
+        <canvas id="canvas-firma"></canvas>
     </div>
 </div>
 
 <div class="no-print">
-    <button class="btn-pdf" onclick="generarPDF()">GENERAR PDF (A5)</button>
-    <button class="btn-wa" onclick="enviarWA()">WHATSAPP</button>
-    <button class="btn-email" onclick="enviarEmail()">EMAIL</button>
-    <button class="btn-clear" onclick="limpiarForm()">LIMPIAR</button>
+    <button class="btn-pdf" id="main-btn" onclick="generarPDF()">GENERAR PDF</button>
+    <button class="btn-wa" onclick="enviarWA()">WhatsApp</button>
+    <button class="btn-mail" onclick="enviarMail()">Email</button>
+    <button class="btn-clear" onclick="limpiar()">Limpiar Todo</button>
 </div>
 
 <script>
-    function genHoras() {
-        let opt = '<option value="" selected>-</option>';
+    const cuerpo = document.getElementById('tabla-cuerpo');
+    const canvas = document.getElementById('canvas-firma');
+    const ctx = canvas.getContext('2d');
+    let dibujando = false;
+
+    function init() {
+        let html = '';
+        let h = 6, m = 30;
+        for(let i=0; i<20; i++) {
+            let hStr = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+            html += `<tr>
+                <td><select>${getHoras(hStr)}</select></td>
+                <td><input type="text" placeholder="Nombre Alumno"></td>
+                <td><select>${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option>${n}</option>`).join('')}</select></td>
+            </tr>`;
+            m += 15; if(m==60){ m=0; h++; }
+        }
+        cuerpo.innerHTML = html;
+        document.getElementById('fecha').valueAsDate = new Date();
+        resizeCanvas();
+    }
+
+    function getHoras(sel) {
+        let opt = '';
         for(let hh=6; hh<=22; hh++) {
             for(let mm=0; mm<60; mm+=15) {
                 let s = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}`;
-                opt += `<option value="${s}">${s}</option>`;
+                opt += `<option ${s==sel?'selected':''}>${s}</option>`;
             }
         }
         return opt;
     }
 
-    function init() {
-        const tabla = document.getElementById('tabla-filas');
-        let html = '';
-        for(let i=1; i<=15; i++) {
-            html += `<tr>
-                <td><select style="border:none;">${genHoras()}</select></td>
-                <td><input type="text" style="border:none; width:95%;"></td>
-                <td><select class="clase-select" onchange="sumarClases()" style="border:none;">
-                    <option value="0" selected>-</option>
-                    ${[1,2,3,4].map(n=>`<option value="${n}">${n}</option>`).join('')}
-                </select></td>
-            </tr>`;
-        }
-        tabla.innerHTML = html;
-        document.getElementById('fecha').valueAsDate = new Date();
-    }
-
-    function sumarClases() {
-        let total = 0;
-        document.querySelectorAll('.clase-select').forEach(sel => {
-            total += parseInt(sel.value) || 0;
-        });
-        document.getElementById('suma-total').innerText = total;
-    }
-
-    function calcKm() {
+    function calc() {
         const i = parseFloat(document.getElementById('kmi').value) || 0;
         const f = parseFloat(document.getElementById('kmf').value) || 0;
         document.getElementById('kmt').value = (f - i) > 0 ? (f - i) : 0;
     }
 
-    function generarPDF() {
-        const element = document.getElementById('parte-completo');
-        const nombreProf = document.getElementById('prof').value.trim() || "profesor";
-        const fechaInput = document.getElementById('fecha').value; 
-        let fechaFormateada = "SinFecha";
-
-        if (fechaInput) {
-            const d = new Date(fechaInput);
-            const dia = String(d.getDate()).padStart(2, '0');
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const año = String(d.getFullYear()).slice(-2);
-            fechaFormateada = `${dia}${mes}${año}`;
-        }
-
-        const nombreArchivo = `${nombreProf.replace(/\s+/g, '_')}_${fechaFormateada}.pdf`;
-
-        const opt = {
-            margin: 0,
-            filename: nombreArchivo,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 3 },
-            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
     }
 
-    function enviarWA() { window.open(`https://wa.me/?text=Envío mi parte de trabajo diario.`, '_blank'); }
-    function enviarEmail() { window.location.href = `mailto:?subject=Parte de Trabajo&body=Adjunto envío mi parte.`; }
-    function limpiarForm() { if(confirm("¿Borrar todos los datos?")) location.reload(); }
+    const pos = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cx - rect.left, y: cy - rect.top };
+    };
 
-    init();
+    canvas.onmousedown = canvas.ontouchstart = (e) => {
+        dibujando = true;
+        ctx.beginPath();
+        const p = pos(e);
+        ctx.moveTo(p.x, p.y);
+        if(e.touches) e.preventDefault();
+    };
+
+    window.onmousemove = window.ontouchmove = (e) => {
+        if(!dibujando) return;
+        const p = pos(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#000";
+        ctx.stroke();
+    };
+
+    window.onmouseup = window.ontouchend = () => dibujando = false;
+
+    function generarPDF() {
+        const element = document.getElementById('parte-completo');
+        const btn = document.getElementById('main-btn');
+        
+        btn.innerText = "PROCESANDO...";
+        btn.disabled = true;
+
+        const opt = {
+            margin: [10, 10],
+            filename: 'Parte_Trabajo.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Sincronizar valores de inputs para el PDF
+        const inputs = element.querySelectorAll('input, select, textarea');
+        inputs.forEach(ins => {
+            if (ins.tagName === 'SELECT') {
+                const val = ins.options[ins.selectedIndex].text;
+                ins.setAttribute('data-value', val);
+            } else {
+                ins.setAttribute('value', ins.value);
+            }
+        });
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.innerText = "GENERAR PDF";
+            btn.disabled = false;
+        });
+    }
+
+    function enviarWA() {
+        const prof = document.getElementById('prof').value;
+        window.open(`https://wa.me/?text=${encodeURIComponent('Hola, adjunto envío mi parte de trabajo (' + prof + '). Descárgalo de mis archivos.')}`, '_blank');
+    }
+
+    function enviarMail() {
+        const prof = document.getElementById('prof').value;
+        window.location.href = `mailto:?subject=Parte Trabajo - ${prof}&body=Envío mi parte de hoy.`;
+    }
+
+    function limpiar() {
+        if(confirm("¿Seguro que quieres borrar todos los datos?")) location.reload();
+    }
+
+    window.onload = init;
 </script>
 
 </body>
